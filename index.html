@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
-  <link rel="stylesheet" href="css/styles.css?v=4">
+  <link rel="stylesheet" href="css/styles.css?v=5">
 </head>
 <body>
   <div class="scratchpad" aria-hidden="true">
@@ -67,6 +67,26 @@
         <p class="eyebrow">Masters thesis</p>
         <h1>A feature-learning approach to environmental regionalisation</h1>
         <p class="lede">A convolutional autoencoder learns five numbers that summarise a full year of daily climate for each site. Those five numbers are enough to recover the forestry growing regions of South Africa, with no map and no coordinates given to the model.</p>
+      </div>
+    </section>
+
+    <section class="koppen-section" id="koppen">
+      <div class="wrap">
+        <p class="eyebrow">The standard approach</p>
+        <h2>The K&ouml;ppen-Geiger climate classification</h2>
+        <p class="section-lede">K&ouml;ppen-Geiger is the most widely used climate classification. It places every location into one class using fixed rules on just two variables, long-term temperature and precipitation, following the scheme of <a href="references.html#ref-peel" class="cite">Peel et al. (2007)</a>. The map below shows those classes across the forestry study area in eastern South Africa.</p>
+        <figure class="koppen-fig">
+          <img src="figures/koppen_geiger_map.png" alt="Koppen-Geiger climate classification across Limpopo, Mpumalanga and KwaZulu-Natal, coloured by class">
+          <figcaption>The K&ouml;ppen-Geiger classes across Limpopo, Mpumalanga and KwaZulu-Natal. Each colour is one class, assigned by fixed temperature and precipitation thresholds.</figcaption>
+        </figure>
+        <h3 class="sub-h">Where it falls short</h3>
+        <ul class="limit-list">
+          <li><strong>Only two variables.</strong> The rules use temperature and precipitation alone, ignoring humidity, wind and other drivers that shape where trees grow well.</li>
+          <li><strong>Fixed, static rules.</strong> The class thresholds are defined in advance and do not adapt to the data, so the same global cut-offs are applied everywhere.</li>
+          <li><strong>Hard boundaries.</strong> Each site is forced into a single class, so transitional zones are merged into a neighbour and the gradual change across the landscape is lost.</li>
+          <li><strong>Coarse classes.</strong> Large areas with different climates can share one class, hiding variation that matters on the ground for forestry.</li>
+        </ul>
+        <p class="section-lede">This site shows an alternative that learns its regions directly from daily weather across six variables, with no fixed rules.</p>
       </div>
     </section>
 

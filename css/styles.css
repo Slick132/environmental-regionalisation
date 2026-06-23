@@ -254,6 +254,18 @@ body { position: relative; overflow-x: clip; }
 .ref-list li { margin: 0 0 16px; font-size: clamp(14px, 1.45vw, 16px); line-height: 1.55; color: var(--ink); }
 .ref-list li::marker { color: var(--eyebrow); font-weight: 600; }
 
+/* Koppen-Geiger opening section */
+.koppen-section { padding: 20px 0 44px; }
+.koppen-fig { margin: 12px auto 26px; max-width: 600px; background: #FFFFFF; border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--card-inset), var(--card-shadow); padding: 16px; text-align: center; }
+.koppen-fig img { display: block; margin: 0 auto; max-width: 100%; max-height: 600px; width: auto; height: auto; border-radius: 8px; }
+.koppen-fig figcaption { margin-top: 12px; font-size: 13px; color: #6B5D63; }
+a.cite { color: var(--eyebrow); font-weight: 500; text-decoration: underline; text-underline-offset: 2px; }
+a.cite:hover { color: var(--heading); }
+.limit-list { margin: 6px 0 22px; padding-left: 1.3em; max-width: 78ch; }
+.limit-list li { margin: 0 0 12px; font-size: clamp(15px, 1.5vw, 18px); line-height: 1.55; color: var(--muted); }
+.limit-list li strong { color: var(--ink); font-weight: 600; }
+.limit-list li::marker { color: var(--eyebrow); }
+
 .sr-only {
   position: absolute;
   width: 1px;
