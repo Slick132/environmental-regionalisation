@@ -75,7 +75,7 @@
     function rs() { var d = Math.min(window.devicePixelRatio || 1, 2); W = c.clientWidth || 460; H = c.clientHeight || 230; c.width = Math.round(W * d); c.height = Math.round(H * d); ctx.setTransform(d, 0, 0, d, 0, 0); }
     rs(); if (window.ResizeObserver) { new ResizeObserver(rs).observe(c); } window.addEventListener('resize', rs);
 
-    var LN = [6, 4, 5];            // input, hidden, output (the 5 numbers)
+    var LN = [7, 5, 5];            // input, hidden, output (the 5 numbers)
     var LY = [0.12, 0.34, 0.56];   // layer y, fraction of height
     var ps = [], acc = 0, active = false;
     var val = [0.5, -0.01, 0.98, 1.23, 4.2];
