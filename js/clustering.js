@@ -204,7 +204,7 @@
 
   var bridge = makeBridge('bridgeCanvas', { colorMode: 'code' });
   var bridge2 = makeBridge('bridgeCanvas2', { colorMode: 'cluster' });
-  var clusterKM = KM('clusterCanvas', { K: 8, nb: 8, count: 10, spread: 0.05, initDur: 0.5, assignDur: 0.55, moveDur: 0.7, holdDur: 1.4, ptR: 3.4, centR: 8, lines: false, grid: false, maxIter: 9, contourCentres: 3 });
+  var clusterKM = KM('clusterCanvas', { K: 8, nb: 8, count: 10, spread: 0.05, initDur: 0.35, assignDur: 0.55, moveDur: 0.7, holdDur: 0.6, ptR: 3.4, centR: 8, lines: false, grid: false, maxIter: 9, contourCentres: 3 });
 
   var animators = [bridge, bridge2, clusterKM].filter(Boolean);
   var last = null;

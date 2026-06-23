@@ -401,6 +401,18 @@ body { position: relative; overflow-x: clip; }
   color: var(--muted);
   text-align: center;
 }
+
+/* In-page bar chart: each learned dimension's Spearman correlation with elevation. */
+.corr-chart { width: 100%; padding: 6px 2px 2px; }
+.corr-chart .cc-rows { display: flex; flex-direction: column; gap: 11px; }
+.cc-row { display: grid; grid-template-columns: 28px 1fr 50px; align-items: center; gap: 10px; }
+.cc-label { font-size: 13px; font-weight: 600; color: var(--heading); font-variant-numeric: tabular-nums; }
+.cc-track { position: relative; height: 16px; background: rgba(0, 0, 0, 0.06); border-radius: 8px; overflow: hidden; }
+.cc-bar { display: block; height: 100%; width: 0; border-radius: 8px; background: var(--switch-active-bg); transition: width 0.95s cubic-bezier(0.22, 1, 0.36, 1); }
+.corr-chart.cc-in .cc-bar { width: calc(var(--mag) * 100%); }
+.cc-val { font-size: 13px; color: var(--muted); text-align: right; font-variant-numeric: tabular-nums; }
+.cc-axis { display: grid; grid-template-columns: 28px 1fr 50px; gap: 10px; margin-top: 9px; }
+.cc-scale { grid-column: 2; display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); }
 .panel {
   margin: 0;
   background: var(--paper);
