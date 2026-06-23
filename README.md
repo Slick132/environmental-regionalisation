@@ -41,8 +41,6 @@ font if unavailable.
 
 - The input data: snippets of the six daily climate channels.
 - The pipeline: preprocessing, autoencoder, embedding, clustering, regions.
-- The learned embeddings: z1 to z5 gradients and what each axis encodes.
-- The eight regions: map and per-region climate profiles.
 - Baseline comparison: Koppen-Geiger, PCA on bioclim, direct-feature clustering.
 - Validation: elevation recovery, silhouette and stability.
 - Case study: site-genotype matching across the learned regions.

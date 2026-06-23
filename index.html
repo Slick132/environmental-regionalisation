@@ -177,7 +177,34 @@
       </div>
     </section>
 
-    <!-- Further sections to be added: the learned embeddings, baseline comparison, validation, and the site-genotype case study. -->
+    <section class="profile-section" id="embeddings">
+      <div class="wrap">
+        <p class="eyebrow">A closer look</p>
+        <h2>Inside the five learned numbers</h2>
+        <p class="section-lede">The clustering works on the five numbers the autoencoder gives each site. Drawn back at the location of every site, each of the five traces a smooth gradient across the study area, even though the model saw only daily weather, with no location and no map. Each number is a learned axis of climate variation, and the eight regions are built from these five axes.</p>
+
+        <figure class="fig-panel wide">
+          <img src="figures/embedding_gradient_maps.png" alt="Six maps of the study area. The first five show the standardised values of the five learned dimensions z1 to z5, each a smooth spatial gradient. The sixth shows site elevation in metres.">
+          <figcaption>The five learned dimensions across the study area, with elevation in the last panel for comparison. Red and blue mark the two ends of each learned axis, and the elevation panel runs from low (dark) to high (yellow). Dimensions z2 and z3 carry most of the terrain signal, although elevation was never an input.</figcaption>
+        </figure>
+
+        <h3 class="sub-h">The five numbers recover elevation</h3>
+        <p class="section-lede">Elevation was never shown to the model, yet the five numbers reconstruct it. A regression of elevation on the five dimensions explains 87% of the variation in site elevation, and a single dimension, z2, already correlates with elevation at 0.83. The terrain was recovered from the imprint that height leaves on daily temperature and humidity, the channels the model reads.</p>
+        <div class="fig-grid">
+          <figure class="fig-panel">
+            <img src="figures/elevation_recovery_fit.png" alt="Scatter of elevation predicted from the five numbers against actual elevation, with points close to the diagonal and an R-squared of 0.87">
+            <figcaption>Elevation predicted from the five numbers against the true elevation. Points on the red diagonal are predicted exactly.</figcaption>
+          </figure>
+          <figure class="fig-panel">
+            <img src="figures/elevation_correlation_bars.png" alt="Bar chart of the correlation of each of the five dimensions with elevation, with z2 the strongest at about 0.83">
+            <figcaption>How strongly each learned dimension tracks elevation. z2 carries most of the terrain signal, with z3 second.</figcaption>
+          </figure>
+        </div>
+        <p class="fig-note">The five numbers come from the final autoencoder for all 14,191 sites. Elevation is held out and used only for this comparison.</p>
+      </div>
+    </section>
+
+    <!-- Further sections to be added: baseline comparison, validation, and the site-genotype case study. -->
   </main>
 
   <footer class="site-footer">
@@ -186,7 +213,7 @@
     </div>
   </footer>
 
-  <script src="js/autoencoder.js"></script>
+  <script src="js/autoencoder.js?v=3"></script>
   <script src="js/clustering.js"></script>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
   <script src="js/region_overlay.js"></script>

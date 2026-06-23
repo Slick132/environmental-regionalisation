@@ -91,7 +91,7 @@
     ctx.lineJoin = 'round'; ctx.lineCap = 'round'; ctx.stroke(); ctx.restore();
   }
 
-  var Ln = [8, 6, 5, 6, 8], Lf = [0.32, 0.41, 0.50, 0.59, 0.68];
+  var Ln = [8, 6, 5, 6, 8];
   var parts = [], spawnAcc = 0;
   function spawn() {
     parts.push({
@@ -121,14 +121,34 @@
     ctx.clearRect(0, 0, W, H);
     ctx.fillStyle = TH.paper; ctx.fillRect(0, 0, W, H);
 
-    var plotTop = 64, plotBot = H - 34;
+    var narrow = W < 600;
+    var headerFs = narrow ? 11 : 12;
+    var labelFs = 12;
+    var labelGap = 8;
+
+    // Reserve a left margin sized to the widest channel label so labels never
+    // clip off the edge on a narrow phone screen.
+    ctx.font = labelFs + 'px ' + TH.font;
+    var labW = 0;
+    for (var qi = 0; qi < N; qi++) { labW = Math.max(labW, ctx.measureText(CHANS[qi].short).width); }
+
+    var sparkW = narrow ? 44 : Math.round(0.135 * W);
+    var mRight = narrow ? 10 : Math.round(0.05 * W);
+    var netGap = narrow ? 16 : Math.round(0.045 * W);
+
+    var plotTop = narrow ? 74 : 64, plotBot = H - 34;
     var availH = plotBot - plotTop, cy = (plotTop + plotBot) / 2;
-    var P = availH / 7 * 0.92;
-    var Lx = Lf.map(function (f) { return f * W; });
+    var P = availH / 7 * (narrow ? 0.86 : 0.92);
     function ny(li, j) { return cy + (j - (Ln[li] - 1) / 2) * P; }
     var bandH = availH / N;
     function yc(ci) { return plotTop + (ci + 0.5) * bandH; }
-    var xInL = 0.10 * W, xInR = 0.235 * W, xOutL = 0.765 * W, xOutR = 0.95 * W;
+
+    var xInL = Math.round(labW + labelGap + 6);
+    var xInR = xInL + sparkW;
+    var xOutR = W - mRight;
+    var xOutL = xOutR - sparkW;
+    var netL = xInR + netGap, netR = xOutL - netGap;
+    var Lx = [0, 1, 2, 3, 4].map(function (i) { return netL + (netR - netL) * (i / 4); });
 
     ctx.strokeStyle = TH.wireIn; ctx.lineWidth = 0.6; ctx.beginPath();
     for (var ci = 0; ci < N; ci++) for (var j0 = 0; j0 < Ln[0]; j0++) { ctx.moveTo(xInR, yc(ci)); ctx.lineTo(Lx[0], ny(0, j0)); }
@@ -163,8 +183,8 @@
           ctx.beginPath(); ctx.arc(nx, nyy, r + 3, 0, 7); ctx.fillStyle = TH.codeGlow; ctx.fill();
           ctx.beginPath(); ctx.arc(nx, nyy, r, 0, 7); ctx.fillStyle = TH.code; ctx.fill();
           ctx.strokeStyle = TH.codeStroke; ctx.lineWidth = 1; ctx.stroke();
-          ctx.fillStyle = TH.codeLabel; ctx.font = '11px ' + TH.font; ctx.textAlign = 'left';
-          ctx.fillText('z' + (m + 1), nx + r + 6, nyy + 4);
+          ctx.fillStyle = TH.codeLabel; ctx.font = (narrow ? 10 : 11) + 'px ' + TH.font; ctx.textAlign = 'left';
+          ctx.fillText('z' + (m + 1), nx + r + (narrow ? 3 : 6), nyy + 4);
         } else {
           var enc = L < 2;
           ctx.beginPath(); ctx.arc(nx, nyy, 6, 0, 7);
@@ -174,11 +194,11 @@
       }
     }
 
-    ctx.textAlign = 'right'; ctx.font = '12px ' + TH.font;
+    ctx.textAlign = 'right'; ctx.font = labelFs + 'px ' + TH.font;
     for (var ic = 0; ic < N; ic++) {
       (function (ic) {
         ctx.fillStyle = TH.chanCols[ic];
-        ctx.fillText(CHANS[ic].short, xInL - 8, yc(ic) + 4);
+        ctx.fillText(CHANS[ic].short, xInL - labelGap, yc(ic) + 4);
         spark(xInL, xInR, yc(ic), bandH * 0.62, function (d) { return sig(ic, d); }, TH.chanCols[ic], 2, 0.95);
       })(ic);
     }
@@ -188,10 +208,11 @@
       })(oc);
     }
 
-    ctx.textAlign = 'center'; ctx.fillStyle = TH.sub; ctx.font = '12px ' + TH.font;
-    ctx.fillText('daily climate input', (xInL + xInR) / 2, plotTop - 16);
-    ctx.fillText('5-number code', Lx[2], plotTop - 16);
-    ctx.fillText('reconstruction', (xOutL + xOutR) / 2, plotTop - 16);
+    ctx.textAlign = 'center'; ctx.fillStyle = TH.sub; ctx.font = headerFs + 'px ' + TH.font;
+    var hy = plotTop - 16;
+    ctx.fillText(narrow ? 'daily input' : 'daily climate input', (xInL + xInR) / 2, hy);
+    ctx.fillText(narrow ? 'code' : '5-number code', Lx[2], hy);
+    ctx.fillText(narrow ? 'output' : 'reconstruction', (xOutL + xOutR) / 2, hy);
   }
 
   function buildLegend() {
