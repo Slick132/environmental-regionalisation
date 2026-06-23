@@ -39,5 +39,14 @@
     legEl.innerHTML = html;
   }
 
-  setTimeout(function () { map.invalidateSize(); map.fitBounds(data.bounds, { padding: [12, 12] }); }, 250);
+  // The shared reveal observer in clustering.js only un-hides the regions map
+  // (#results .map-panel). This panel must reveal itself or it stays at the
+  // .map-panel default of opacity 0. Reveal it once the map is set up, and keep
+  // an observer only to re-size the map when it scrolls into view.
+  var panel = el.closest('.map-panel');
+  function fit() { map.invalidateSize(); map.fitBounds(data.bounds, { padding: [12, 12] }); }
+  setTimeout(function () { if (panel) { panel.classList.add('in'); } fit(); }, 60);
+  if ('IntersectionObserver' in window && panel) {
+    new IntersectionObserver(function (es) { if (es[0].isIntersecting) { panel.classList.add('in'); fit(); } }, { threshold: 0.06 }).observe(panel);
+  }
 })();
