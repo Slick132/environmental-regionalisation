@@ -85,5 +85,18 @@ rgb = cmap(0.25 + gn * 0.75)[:, :, :3]
 color = np.dstack([rgb, alpha])
 plt.imsave(OUT / "dem_color.png", color)
 
-print(f"wrote {OUT / 'dem_gray.png'} and dem_color.png  ({W}x{H})")
+# Also embed both PNGs as data URIs in a plain script so the 3D page works when
+# opened as a local file (file:// blocks cross-origin / local WebGL textures).
+import base64
+
+
+def _uri(p):
+    return "data:image/png;base64," + base64.b64encode(p.read_bytes()).decode("ascii")
+
+
+dem_js = OUT.parent / "dem_data.js"        # prototypes/dem_data.js  (OUT is prototypes/assets)
+dem_js.write_text('window.DEM_GRAY = "' + _uri(OUT / "dem_gray.png") + '";\n'
+                  'window.DEM_COLOR = "' + _uri(OUT / "dem_color.png") + '";\n', encoding="utf-8")
+
+print(f"wrote {OUT / 'dem_gray.png'}, dem_color.png ({W}x{H}) and {dem_js}")
 print(f"  elevation display range {emin:.0f}..{emax:.0f} m, hull cells {int(inside.sum())}")

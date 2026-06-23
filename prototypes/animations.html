@@ -40,6 +40,7 @@
     <p class="hint">Prototype for review. Data: 2,530 sampled sites. Elevation was never an input to the model.</p>
   </div>
 
+  <script src="prototype_data.js"></script>
   <script>
   (function () {
     var cvs = document.getElementById('c'), ctx = cvs.getContext('2d');
@@ -237,13 +238,13 @@
     if (window.ResizeObserver) new ResizeObserver(resize).observe(cvs);
     window.addEventListener('resize', resize);
 
-    fetch('../data/prototype_sites.json').then(function(r){ return r.json(); }).then(function(j){
-      D = j; resize();
+    if (window.PROTOTYPE_DATA) {
+      D = window.PROTOTYPE_DATA; resize();
       document.getElementById('cap').textContent = CAPS.reveal;
       requestAnimationFrame(frame);
-    }).catch(function(err){
-      document.getElementById('cap').textContent = 'Could not load data: '+err;
-    });
+    } else {
+      document.getElementById('cap').textContent = 'Could not load data (prototype_data.js missing).';
+    }
   })();
   </script>
 </body>

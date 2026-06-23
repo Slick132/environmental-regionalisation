@@ -99,6 +99,14 @@ out = {
     "tris": [[int(a), int(b), int(c)] for a, b, c in simp],
     "sites": sites,
 }
-(OUT / "prototype_sites.json").write_text(json.dumps(out), encoding="utf-8")
-print(f"wrote {OUT / 'prototype_sites.json'}")
+payload = json.dumps(out)
+(OUT / "prototype_sites.json").write_text(payload, encoding="utf-8")
+
+# Also emit a plain-script global so the page works when opened as a local file
+# (file:// blocks fetch of local JSON).
+proto_js = Path(__file__).resolve().parent.parent / "prototypes" / "prototype_data.js"
+proto_js.parent.mkdir(parents=True, exist_ok=True)
+proto_js.write_text("window.PROTOTYPE_DATA = " + payload + ";\n", encoding="utf-8")
+
+print(f"wrote {OUT / 'prototype_sites.json'} and {proto_js}")
 print(f"  sites={len(sites)} tris={len(simp)} r2={r2:.3f} spearman={spear} z2_flip={z2_flip}")
