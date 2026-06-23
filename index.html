@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>A feature-learning approach to environmental regionalisation</title>
+  <script>try { var t = localStorage.getItem('siteTheme'); if (t) document.documentElement.setAttribute('data-theme', t); } catch (e) {}</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div class="scratchpad" aria-hidden="true">
+    <img class="sprite hide-sm" src="figures/South%20Africa.png" alt="" style="top:4%; right:-4%; --w:360px;">
+    <img class="sprite" src="figures/Butterfly%203.png" alt="" style="top:8%; right:8%; --w:120px; --r:-10deg;">
+    <img class="sprite" src="figures/Bird.png" alt="" style="top:11%; left:-2%; --w:230px; --r:5deg;">
+    <img class="sprite" src="figures/Hornbill.png" alt="" style="top:16%; right:5%; --w:195px; --r:3deg;">
+    <img class="sprite" src="figures/Fish%20Eagle.png" alt="" style="top:20%; left:2%; --w:205px; --r:-2deg;">
+    <img class="sprite" src="figures/Brush.png" alt="" style="top:23%; right:1%; --w:200px; --r:-9deg;">
+    <img class="sprite" src="figures/Protea.png" alt="" style="top:30%; left:0%; --w:230px; --r:3deg;">
+    <img class="sprite" src="figures/Bird%20with%20Ruler.png" alt="" style="top:38%; left:2%; --w:165px; --r:-3deg;">
+    <img class="sprite" src="figures/Butterfly%205.png" alt="" style="top:45%; right:7%; --w:110px; --r:12deg;">
+    <img class="sprite" src="figures/Brush.png" alt="" style="top:52%; right:0%; --w:175px; --r:8deg; --sx:-1;">
+    <img class="sprite" src="figures/Butterfly%206.png" alt="" style="top:60%; left:5%; --w:120px; --r:-8deg;">
+    <img class="sprite hide-sm" src="figures/South%20Africa.png" alt="" style="top:64%; left:-3%; --w:300px;">
+    <img class="sprite" src="figures/Boabab.png" alt="" style="top:70%; right:0%; --w:320px;">
+    <img class="sprite" src="figures/Bird.png" alt="" style="top:78%; right:2%; --w:215px; --r:-6deg; --sx:-1;">
+    <img class="sprite" src="figures/Butterfly%204.png" alt="" style="top:84%; right:8%; --w:125px; --r:9deg;">
+    <img class="sprite" src="figures/Bird%20with%20Ruler.png" alt="" style="top:90%; left:3%; --w:150px; --r:6deg;">
+  </div>
+
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <span class="brand">Environmental regionalisation</span>
+      <div class="theme-switch" role="group" aria-label="Visual theme">
+        <button type="button" data-theme-set="maroon" class="active">Maroon</button>
+        <button type="button" data-theme-set="fable">Field notes</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="wrap">
+        <svg class="ornament" viewBox="0 0 200 160" aria-hidden="true">
+          <g fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round">
+            <line x1="100" y1="44" x2="100" y2="120"/>
+            <path d="M100 44 C 92 30, 84 26, 77 23"/>
+            <path d="M100 44 C 108 30, 116 26, 123 23"/>
+            <circle cx="77" cy="23" r="2.4"/>
+            <circle cx="123" cy="23" r="2.4"/>
+            <path d="M100 54 C 60 22, 22 32, 30 72 C 35 99, 80 92, 100 78 Z"/>
+            <path d="M100 54 C 140 22, 178 32, 170 72 C 165 99, 120 92, 100 78 Z"/>
+            <path d="M100 80 C 72 92, 48 106, 58 128 C 65 144, 92 130, 100 110 Z"/>
+            <path d="M100 80 C 128 92, 152 106, 142 128 C 135 144, 108 130, 100 110 Z"/>
+            <circle cx="62" cy="58" r="6"/>
+            <circle cx="138" cy="58" r="6"/>
+            <circle cx="70" cy="112" r="4"/>
+            <circle cx="130" cy="112" r="4"/>
+          </g>
+        </svg>
+        <p class="eyebrow">Masters thesis</p>
+        <h1>A feature-learning approach to environmental regionalisation</h1>
+        <p class="lede">A convolutional autoencoder learns five numbers that summarise a full year of daily climate for each site. Those five numbers are enough to recover the forestry growing regions of South Africa, with no map and no coordinates given to the model.</p>
+      </div>
+    </section>
+
+    <section class="anim-section" id="autoencoder">
+      <div class="wrap">
+        <figure class="anim-card">
+          <p class="sr-only">Animation of a trained feed-forward autoencoder. Six daily climate channels flow in from the left into a layered neural network. Particles travel along the connections through a five-neuron bottleneck code, and a reconstruction flows out on the right that mirrors the input.</p>
+          <div class="anim-stage">
+            <canvas id="aeCanvas" aria-label="Animation of a trained autoencoder compressing daily climate into a five-number code and reconstructing it"></canvas>
+            <button id="aeToggle" class="anim-toggle" type="button" aria-label="Pause animation"></button>
+          </div>
+          <div class="legend" id="aeLegend"></div>
+          <figcaption class="anim-caption">Six daily climate channels for each site, maximum and minimum temperature, maximum and minimum relative humidity, precipitation and wind, flow into a trained autoencoder. The network compresses a full year into a five-number code, then rebuilds the original series from those five numbers. The reconstruction on the right mirrors the input on the left, which is the evidence that five numbers capture the climate of a site.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="bridge-section" id="to-clustering">
+      <div class="wrap bridge-wrap">
+        <canvas id="bridgeCanvas" aria-hidden="true"></canvas>
+        <p class="bridge-label">The five learned numbers for every site form one 5-D vector. Those vectors are passed to a clustering algorithm.</p>
+      </div>
+    </section>
+
+    <section class="cluster-section" id="clustering">
+      <div class="wrap">
+        <p class="eyebrow">Step two</p>
+        <h2>Clustering the learned features</h2>
+        <p class="section-lede">Each site is now a point in five dimensions, given by its five learned numbers. The k-means algorithm groups the points into eight regions by repeatedly assigning each point to the nearest cluster centre and moving every centre to the mean of the points assigned to it. The view below is a two-dimensional projection of the 5-D embedding.</p>
+        <div class="cluster-grid single">
+          <figure class="panel">
+            <canvas id="clusterCanvas" aria-label="Animation of k-means forming eight regions in a two-dimensional view of the five-dimensional embedding"></canvas>
+            <figcaption>Eight regions forming in a two-dimensional view of the 5-D embedding. Each dot is a site, each cross is a cluster centre.</figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <section class="profile-section" id="profiling">
+      <div class="wrap">
+        <p class="eyebrow">Step three</p>
+        <h2>What each region is like</h2>
+        <p class="section-lede">Each region carries a distinct climate. The bar charts give the per-region means of the four headline variables. The gradient maps show how each climate domain varies continuously across the study area, with the eight region boundaries overlaid, so the learned boundaries can be read directly against the underlying climate.</p>
+
+        <figure class="fig-panel wide">
+          <img src="figures/cluster_physical_means.png" alt="Four bar charts of per-region mean temperature, annual precipitation, relative humidity and wind speed, with 95 percent confidence intervals">
+          <figcaption>Per-region means of mean temperature, annual precipitation, mean relative humidity and mean wind speed, with 95% confidence intervals. The bar colours are the eight regions, the same regions shown on the interactive map below.</figcaption>
+        </figure>
+
+        <h3 class="sub-h">Climate gradients with region boundaries</h3>
+        <div class="fig-grid">
+          <figure class="fig-panel">
+            <img src="figures/pc1_temperature_boundaries.png" alt="Temperature composite across the study area with the eight region boundaries overlaid">
+            <figcaption>Temperature, where positive is warmer.</figcaption>
+          </figure>
+          <figure class="fig-panel">
+            <img src="figures/pc1_precipitation_boundaries.png" alt="Precipitation composite across the study area with the eight region boundaries overlaid">
+            <figcaption>Precipitation, where positive is wetter.</figcaption>
+          </figure>
+          <figure class="fig-panel">
+            <img src="figures/pc1_humidity_boundaries.png" alt="Humidity composite across the study area with the eight region boundaries overlaid">
+            <figcaption>Humidity, where positive is more humid.</figcaption>
+          </figure>
+          <figure class="fig-panel">
+            <img src="figures/pc1_wind_boundaries.png" alt="Wind composite across the study area with the eight region boundaries overlaid">
+            <figcaption>Wind, where positive is windier.</figcaption>
+          </figure>
+        </div>
+        <p class="fig-note">Each map is the first principal component of one climate domain across the study area, with the eight region boundaries and numbered centroids overlaid.</p>
+      </div>
+    </section>
+
+    <section class="bridge-section" id="to-results">
+      <div class="wrap bridge-wrap">
+        <canvas id="bridgeCanvas2" aria-hidden="true"></canvas>
+        <p class="bridge-label">Every site keeps the region it was assigned, so the eight regions can be drawn back at the location of each site.</p>
+      </div>
+    </section>
+
+    <section class="result-section" id="results">
+      <div class="wrap">
+        <p class="eyebrow">Explore</p>
+        <h2>Eight regions on the map</h2>
+        <p class="section-lede">No map, coordinates or boundaries were given to the model, yet the eight regions form coherent, contiguous bands across the forestry study area of eastern South Africa. Every site is drawn at its real latitude and longitude on the satellite map below. Colour the map by a climate variable to see how the regions differ.</p>
+        <figure class="map-panel">
+          <div id="regionMap" role="img" aria-label="Interactive satellite map of eastern South Africa with the eight learned regions overlaid at the real location of every site"></div>
+          <div class="map-tools">
+            <div class="map-vars" id="mapVars" role="group" aria-label="Colour the map by">
+              <button type="button" data-var="regions" class="active">Regions</button>
+              <button type="button" data-var="temperature">Temperature</button>
+              <button type="button" data-var="precipitation">Precipitation</button>
+              <button type="button" data-var="humidity">Humidity</button>
+              <button type="button" data-var="wind">Wind</button>
+            </div>
+            <label class="map-opacity">Opacity
+              <input id="mapOpacity" type="range" min="0" max="100" value="66" step="1">
+            </label>
+          </div>
+          <div id="mapLegend" class="map-legend"></div>
+          <div id="varPanel" class="var-panel" hidden>
+            <div class="colorbar-wrap">
+              <span class="cb-min" id="cbMin"></span>
+              <span class="colorbar" id="cbBar"></span>
+              <span class="cb-max" id="cbMax"></span>
+            </div>
+            <div class="var-bars" id="varBars"></div>
+          </div>
+          <figcaption>Satellite basemap with the eight learned regions overlaid. Colour the map by a climate variable to compare the regions; the region shades are spaced by rank so even close regions stay distinct, and the exact values are listed below. Switch the basemap to terrain with the layer control, fade with the slider, and zoom for detail.</figcaption>
+          <noscript><img src="figures/kmeans_regions_map.png" alt="Map of the eight learned regions across the eastern South African study area"></noscript>
+        </figure>
+      </div>
+    </section>
+
+    <!-- Further sections to be added: the learned embeddings, baseline comparison, validation, and the site-genotype case study. -->
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <p>Stellenbosch University. Funded by the Hans Merensky Legacy Foundation, EucXylo and Surgor.</p>
+    </div>
+  </footer>
+
+  <script src="js/autoencoder.js"></script>
+  <script src="js/clustering.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <script src="js/region_overlay.js"></script>
+  <script src="js/map.js"></script>
+  <script>
+    (function () {
+      var buttons = Array.prototype.slice.call(document.querySelectorAll('[data-theme-set]'));
+      function applyTheme(name) {
+        document.documentElement.setAttribute('data-theme', name);
+        try { localStorage.setItem('siteTheme', name); } catch (e) {}
+        buttons.forEach(function (b) { b.classList.toggle('active', b.getAttribute('data-theme-set') === name); });
+        if (window.aeSetTheme) { window.aeSetTheme(name); }
+        if (window.clusterSetTheme) { window.clusterSetTheme(name); }
+      }
+      buttons.forEach(function (b) {
+        b.addEventListener('click', function () { applyTheme(b.getAttribute('data-theme-set')); });
+      });
+      var saved = 'maroon';
+      try { saved = localStorage.getItem('siteTheme') || 'maroon'; } catch (e) {}
+      applyTheme(saved);
+    })();
+  </script>
+</body>
+</html>

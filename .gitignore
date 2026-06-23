@@ -1,0 +1,10 @@
+# Local backups of the original (pre-cut) source images. Kept on disk for
+# safety, but not part of the published site.
+figures/_cut_src/
+figures/_butterfly_src/
+
+# OS and editor junk
+Thumbs.db
+.DS_Store
+desktop.ini
+*.tmp
