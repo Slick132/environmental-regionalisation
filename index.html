@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
-  <link rel="stylesheet" href="css/styles.css?v=2">
+  <link rel="stylesheet" href="css/styles.css?v=3">
 </head>
 <body>
   <div class="scratchpad" aria-hidden="true">
@@ -34,9 +34,12 @@
   <header class="site-header">
     <div class="wrap header-inner">
       <span class="brand">Environmental regionalisation</span>
-      <div class="theme-switch" role="group" aria-label="Visual theme">
-        <button type="button" data-theme-set="maroon" class="active">Maroon</button>
-        <button type="button" data-theme-set="fable">Field notes</button>
+      <div class="header-right">
+        <a href="references.html" class="nav-link">References</a>
+        <div class="theme-switch" role="group" aria-label="Visual theme">
+          <button type="button" data-theme-set="maroon" class="active">Maroon</button>
+          <button type="button" data-theme-set="fable">Field notes</button>
+        </div>
       </div>
     </div>
   </header>
@@ -159,7 +162,7 @@
               <button type="button" data-var="wind">Wind</button>
             </div>
             <label class="map-opacity">Opacity
-              <input id="mapOpacity" type="range" min="0" max="100" value="66" step="1">
+              <input id="mapOpacity" type="range" min="0" max="100" value="100" step="1">
             </label>
           </div>
           <div id="mapLegend" class="map-legend"></div>
@@ -184,8 +187,33 @@
         <p class="section-lede">The clustering works on the five numbers the autoencoder gives each site. Drawn back at the location of every site, each of the five traces a smooth gradient across the study area, even though the model saw only daily weather, with no location and no map. Each number is a learned axis of climate variation, and the eight regions are built from these five axes.</p>
 
         <figure class="fig-panel wide">
-          <img src="figures/embedding_gradient_maps.png" alt="Six maps of the study area. The first five show the standardised values of the five learned dimensions z1 to z5, each a smooth spatial gradient. The sixth shows site elevation in metres.">
-          <figcaption>The five learned dimensions across the study area, with elevation in the last panel for comparison. Red and blue mark the two ends of each learned axis, and the elevation panel runs from low (dark) to high (yellow). Dimensions z2 and z3 carry most of the terrain signal, although elevation was never an input.</figcaption>
+          <div style="display:flex; gap:12px; justify-content:center; align-items:flex-start; flex-wrap:wrap;">
+            <div style="text-align:center;">
+              <div style="font-weight:600; margin-bottom:4px;">z<sub>1</sub></div>
+              <img src="figures/emb_z1.png" style="height:260px; width:auto;" alt="Learned dimension z1 mapped across South Africa with region boundaries">
+            </div>
+            <div style="text-align:center;">
+              <div style="font-weight:600; margin-bottom:4px;">z<sub>2</sub></div>
+              <img src="figures/emb_z2.png" style="height:260px; width:auto;" alt="Learned dimension z2 mapped across South Africa with region boundaries">
+            </div>
+            <div style="text-align:center;">
+              <div style="font-weight:600; margin-bottom:4px;">z<sub>3</sub></div>
+              <img src="figures/emb_z3.png" style="height:260px; width:auto;" alt="Learned dimension z3 mapped across South Africa with region boundaries">
+            </div>
+            <div style="text-align:center;">
+              <div style="font-weight:600; margin-bottom:4px;">z<sub>4</sub></div>
+              <img src="figures/emb_z4.png" style="height:260px; width:auto;" alt="Learned dimension z4 mapped across South Africa with region boundaries">
+            </div>
+            <div style="text-align:center;">
+              <div style="font-weight:600; margin-bottom:4px;">z<sub>5</sub></div>
+              <img src="figures/emb_z5.png" style="height:260px; width:auto;" alt="Learned dimension z5 mapped across South Africa with region boundaries">
+            </div>
+            <div style="text-align:center;">
+              <div style="font-weight:600; margin-bottom:4px;">Elevation</div>
+              <img src="figures/emb_elevation.png" style="height:260px; width:auto;" alt="Site elevation in metres across South Africa with region boundaries">
+            </div>
+          </div>
+          <figcaption>The five learned dimensions across the study area, with elevation in the last panel for comparison. Red marks high values, blue marks low values on each learned axis, and the elevation panel runs from low (dark) to high (yellow). Region boundaries and cluster numbers are overlaid. Dimensions z2 and z3 carry most of the terrain signal, although elevation was never an input.</figcaption>
         </figure>
 
         <h3 class="sub-h">The five numbers recover elevation</h3>
@@ -213,8 +241,8 @@
     </div>
   </footer>
 
-  <script src="js/autoencoder.js?v=3"></script>
-  <script src="js/clustering.js?v=2"></script>
+  <script src="js/autoencoder.js?v=4"></script>
+  <script src="js/clustering.js?v=3"></script>
   <script src="js/corr_chart.js"></script>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
   <script src="js/region_overlay.js"></script>
