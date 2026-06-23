@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
-  <link rel="stylesheet" href="css/styles.css?v=5">
+  <link rel="stylesheet" href="css/styles.css?v=6">
 </head>
 <body>
   <div class="scratchpad" aria-hidden="true">
@@ -70,14 +70,39 @@
       </div>
     </section>
 
+    <section class="data-section" id="data">
+      <div class="wrap">
+        <p class="eyebrow">The data</p>
+        <h2>Daily climate across the forestry study area</h2>
+        <p class="section-lede">The study area is a 5 km grid of 14,191 sites across the forestry regions of eastern South Africa, in Limpopo, Mpumalanga and KwaZulu-Natal. The map below highlights those sites over satellite imagery. At every site the model reads one full year of daily weather across six variables.</p>
+        <figure class="data-fig">
+          <div id="studyMap" role="img" aria-label="Satellite map of eastern South Africa with the study area sampling grid highlighted as hexagons"></div>
+          <figcaption>The 14,191 sampled 5 km hexagons highlighted over satellite imagery, across the forestry regions of eastern South Africa. Zoom in to see the individual hexagons.</figcaption>
+        </figure>
+        <h3 class="sub-h">One year of daily weather at a site</h3>
+        <p class="section-lede">Each site carries a daily time series for 2006 of the six variables the model reads. The example below is a site on the Mpumalanga escarpment, showing the seasonal cycle of warm wet summers and cool dry winters.</p>
+        <figure class="data-fig">
+          <img src="figures/data_timeseries.png" alt="One year of daily maximum and minimum temperature, maximum and minimum relative humidity, precipitation and wind at one site">
+          <figcaption>Daily maximum and minimum temperature, maximum and minimum relative humidity, precipitation and wind for 2006 at one site on the Mpumalanga escarpment (25.5 S, 30.6 E). These six daily series are the only input the model receives.</figcaption>
+        </figure>
+      </div>
+    </section>
+
     <section class="koppen-section" id="koppen">
       <div class="wrap">
         <p class="eyebrow">The standard approach</p>
         <h2>The K&ouml;ppen-Geiger climate classification</h2>
-        <p class="section-lede">K&ouml;ppen-Geiger is the most widely used climate classification. It places every location into one class using fixed rules on just two variables, long-term temperature and precipitation, following the scheme of <a href="references.html#ref-peel" class="cite">Peel et al. (2007)</a>. The map below shows those classes across the forestry study area in eastern South Africa.</p>
-        <figure class="koppen-fig">
-          <img src="figures/koppen_geiger_map.png" alt="Koppen-Geiger climate classification across Limpopo, Mpumalanga and KwaZulu-Natal, coloured by class">
-          <figcaption>The K&ouml;ppen-Geiger classes across Limpopo, Mpumalanga and KwaZulu-Natal. Each colour is one class, assigned by fixed temperature and precipitation thresholds.</figcaption>
+        <p class="section-lede">K&ouml;ppen-Geiger is the most widely used climate classification. It places every location into one class using fixed rules on just two variables, long-term temperature and precipitation, following the scheme of <a href="references.html#ref-peel" class="cite">Peel et al. (2007)</a>. The satellite map below shows those classes across the forestry study area in eastern South Africa, with the meaning of each class listed beneath it.</p>
+        <figure class="map-panel">
+          <div id="koppenMap" role="img" aria-label="Interactive satellite map of eastern South Africa coloured by Koppen-Geiger climate class"></div>
+          <div class="map-tools">
+            <label class="map-opacity">Opacity
+              <input id="koppenOpacity" type="range" min="0" max="100" value="100" step="1">
+            </label>
+          </div>
+          <div id="koppenLegend" class="koppen-legend"></div>
+          <figcaption>Esri satellite basemap with the K&ouml;ppen-Geiger classes overlaid at the real location of every site. Each colour is one class, assigned by fixed temperature and precipitation thresholds, in the colours of <a href="references.html#ref-peel" class="cite">Peel et al. (2007)</a>. Switch the basemap to terrain with the layer control, fade with the slider, and zoom for detail.</figcaption>
+          <noscript><img src="figures/koppen_geiger_map.png" alt="Koppen-Geiger climate classification across Limpopo, Mpumalanga and KwaZulu-Natal, coloured by class"></noscript>
         </figure>
         <h3 class="sub-h">Where it falls short</h3>
         <ul class="limit-list">
@@ -252,7 +277,51 @@
       </div>
     </section>
 
-    <!-- Further sections to be added: baseline comparison, validation, and the site-genotype case study. -->
+    <section class="profile-section" id="casestudy">
+      <div class="wrap">
+        <p class="eyebrow">Case study</p>
+        <h2>Forestry yield across the learned regions</h2>
+        <p class="section-lede">Twenty-seven <em>Eucalyptus</em> trials (29,273 age-four trees), with data from industry partners Sappi, Mondi and Merensky, were matched to the learned regions. The variance in individual-tree log volume was partitioned by two mixed models, separating the genotype-by-region interaction from the genotype-by-site interaction. A large interaction means a genotype's ranking depends on where it is planted, which is the statistical basis for matching genotypes to sites.</p>
+
+        <div class="gxe-tables">
+          <div>
+            <h3 class="sub-h">Genotype &times; region variance</h3>
+            <table class="var-table">
+              <thead>
+                <tr><th>Species</th><th>Region</th><th>Genotype</th><th>Gen &times; region</th><th>Residual</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><em>E. grandis</em> &times; <em>urophylla</em></td><td>3.8%</td><td>0.4%</td><td class="hi">22.3%</td><td>73.6%</td></tr>
+                <tr><td><em>E. grandis</em> &times; <em>nitens</em></td><td>10.5%</td><td>0.7%</td><td class="hi">29.1%</td><td>59.6%</td></tr>
+                <tr><td><em>E. dunnii</em></td><td>3.0%</td><td>42.2%</td><td class="hi">4.5%</td><td>50.3%</td></tr>
+                <tr><td><em>E. grandis</em> &times; <em>camaldulensis</em></td><td>3.8%</td><td>0.0%</td><td class="hi">12.9%</td><td>83.3%</td></tr>
+              </tbody>
+            </table>
+            <p class="fig-note">Model: log volume ~ region + genotype + genotype:region. Genotype performance varies by region for every species (interaction p &lt; 0.001), though the share is large for the grandis hybrids and small for <em>E. dunnii</em>.</p>
+          </div>
+
+          <div>
+            <h3 class="sub-h">Genotype &times; site variance</h3>
+            <table class="var-table">
+              <thead>
+                <tr><th>Species</th><th>Site</th><th>Genotype</th><th>Gen &times; site</th><th>Residual</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><em>E. grandis</em> &times; <em>urophylla</em></td><td>3.7%</td><td>3.0%</td><td class="hi">45.1%</td><td>48.2%</td></tr>
+                <tr><td><em>E. grandis</em> &times; <em>nitens</em></td><td>3.7%</td><td>13.6%</td><td class="hi">31.1%</td><td>51.6%</td></tr>
+                <tr><td><em>E. dunnii</em></td><td>1.1%</td><td>0.0%</td><td class="hi">49.8%</td><td>49.0%</td></tr>
+                <tr><td><em>E. grandis</em> &times; <em>camaldulensis</em></td><td>5.9%</td><td>4.3%</td><td class="hi">46.1%</td><td>43.7%</td></tr>
+              </tbody>
+            </table>
+            <p class="fig-note">Model: log volume ~ site + genotype + genotype:site. The genotype-by-site interaction is large for every species (31 to 50%, all p &lt; 0.001), so genotype performance varies strongly site to site.</p>
+          </div>
+        </div>
+
+        <p class="fig-note">Variance shares are from REML mixed models on individual-tree log volume across the 29,273 age-four trees. Each value is a share of total variance, and the interaction term is tested with a likelihood-ratio test. The genotype-by-environment interaction dwarfs the genotype main effect, so no genotype is uniformly best; which genotype yields most depends on where it is planted.</p>
+      </div>
+    </section>
+
+    <!-- Further sections to be added: baseline comparison and validation. -->
   </main>
 
   <footer class="site-footer">
@@ -267,6 +336,9 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
   <script src="js/region_overlay.js"></script>
   <script src="js/map.js"></script>
+  <script src="js/koppen_overlay.js"></script>
+  <script src="js/koppen_map.js"></script>
+  <script src="js/study_map.js"></script>
   <script>
     (function () {
       var buttons = Array.prototype.slice.call(document.querySelectorAll('[data-theme-set]'));
