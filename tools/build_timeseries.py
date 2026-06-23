@@ -36,6 +36,17 @@ df["date"] = pd.to_datetime(df["date"])
 df = df.sort_values("date").reset_index(drop=True)
 print("days:", len(df), "from", df.date.min().date(), "to", df.date.max().date())
 
+# --- export the series as a small JS data file for the canvas chart --------
+import json
+SITE = Path(r"D:\University\Masters\Presentations\Poster Website")
+def _arr(col, dec): return [round(float(v), dec) for v in df[col].tolist()]
+ts = {"site": {"lat": round(la, 4), "lon": round(lo, 4)}, "year": 2006,
+      "tmax": _arr("tmax", 1), "tmin": _arr("tmin", 1),
+      "rhmax": _arr("rhmax", 1), "rhmin": _arr("rhmin", 1),
+      "precip": _arr("precip", 1), "wind": _arr("u10_median", 2)}
+(SITE / "js" / "timeseries_data.js").write_text("window.TS_DATA = " + json.dumps(ts) + ";\n", encoding="utf-8")
+print("wrote js/timeseries_data.js", len(ts["tmax"]), "days")
+
 # (column, label, unit, colour, kind)
 SPEC = [
     ("tmax",       "Max temp",  r"$^\circ$C",  "#61223B", "line"),
