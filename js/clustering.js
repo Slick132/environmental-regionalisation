@@ -82,7 +82,7 @@
     var tgt = val.slice(), spd = [0, 0, 0, 0, 0];
     function retarget(i) { tgt[i] = -1.6 + 6.0 * Math.random(); spd[i] = 0.8 + 1.3 * Math.random(); }
 
-    function nodeX(li, i) { var n = LN[li], span = Math.min(W * 0.66, 300); return W / 2 + (i - (n - 1) / 2) * (span / Math.max(n - 1, 1)); }
+    function nodeX(li, i) { var n = LN[li], span = Math.min(W * 0.9, 430) * [1.0, 0.56, 0.34][li]; return W / 2 + (i - (n - 1) / 2) * (span / Math.max(n - 1, 1)); }
     function nodeY(li) { return LY[li] * H; }
     function spawn() { ps.push({ a: (Math.random() * LN[0]) | 0, b: (Math.random() * LN[1]) | 0, c: (Math.random() * LN[2]) | 0, p: 0, sp: 0.30 + 0.12 * Math.random() }); }
 
@@ -281,7 +281,7 @@
 
   var bridge = makeEncoder('bridgeCanvas');
   var bridge2 = makeBridge('bridgeCanvas2', { colorMode: 'cluster' });
-  var clusterKM = KM('clusterCanvas', { K: 8, nb: 8, count: 10, spread: 0.05, initDur: 0.35, assignDur: 0.55, moveDur: 0.7, holdDur: 0.6, ptR: 3.4, centR: 8, lines: false, grid: false, maxIter: 9, contourCentres: 3 });
+  var clusterKM = KM('clusterCanvas', { K: 8, nb: 8, count: 10, spread: 0.05, initDur: 0.22, assignDur: 0.38, moveDur: 0.46, holdDur: 0.4, ptR: 3.4, centR: 8, lines: false, grid: false, maxIter: 9, contourCentres: 3 });
 
   var animators = [bridge, bridge2, clusterKM].filter(Boolean);
   var last = null;

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>References - A feature-learning approach to environmental regionalisation</title>
+  <script>try { var t = localStorage.getItem('siteTheme'); if (t) document.documentElement.setAttribute('data-theme', t); } catch (e) {}</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css?v=3">
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <span class="brand"><a href="index.html" class="brand-link">Environmental regionalisation</a></span>
+      <div class="theme-switch" role="group" aria-label="Visual theme">
+        <button type="button" data-theme-set="maroon" class="active">Maroon</button>
+        <button type="button" data-theme-set="fable">Field notes</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="wrap">
+        <p class="eyebrow"><a href="index.html" class="back-link">&larr; Back to the overview</a></p>
+        <h1>References</h1>
+        <p class="lede">Key references for the methods behind this work: representation learning and autoencoders, data-driven environmental regionalisation, and the rule-based K&ouml;ppen-Geiger climate baseline.</p>
+        <ol class="ref-list">
+          <li>Bengio, Y., Courville, A. and Vincent, P. (2013). Representation learning: a review and new perspectives. IEEE Transactions on Pattern Analysis and Machine Intelligence, 35(8), 1798-1828.</li>
+          <li>Goodfellow, I., Bengio, Y. and Courville, A. (2016). Deep Learning. MIT Press.</li>
+          <li>Liu, Y., Fu, B., Wang, S. and Zhao, W. (2018). Global ecological regionalization: from biogeography to ecosystem services. Current Opinion in Environmental Sustainability, 33, 1-8.</li>
+          <li>Lynch, M. and Walsh, B. (1998). Genetics and Analysis of Quantitative Traits. Sinauer Associates, Sunderland, Massachusetts.</li>
+          <li>Peel, M. C., Finlayson, B. L. and McMahon, T. A. (2007). Updated world map of the K&ouml;ppen-Geiger climate classification. Hydrology and Earth System Sciences, 11(5), 1633-1644.</li>
+        </ol>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <p>Stellenbosch University. Funded by the Hans Merensky Legacy Foundation, EucXylo and Surgor.</p>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      var buttons = Array.prototype.slice.call(document.querySelectorAll('[data-theme-set]'));
+      function applyTheme(name) {
+        document.documentElement.setAttribute('data-theme', name);
+        try { localStorage.setItem('siteTheme', name); } catch (e) {}
+        buttons.forEach(function (b) { b.classList.toggle('active', b.getAttribute('data-theme-set') === name); });
+      }
+      buttons.forEach(function (b) {
+        b.addEventListener('click', function () { applyTheme(b.getAttribute('data-theme-set')); });
+      });
+      var saved = 'maroon';
+      try { saved = localStorage.getItem('siteTheme') || 'maroon'; } catch (e) {}
+      applyTheme(saved);
+    })();
+  </script>
+</body>
+</html>
