@@ -419,9 +419,12 @@ body { position: relative; overflow-x: clip; }
 .corr-chart .cc-rows { display: flex; flex-direction: column; gap: 11px; }
 .cc-row { display: grid; grid-template-columns: 28px 1fr 50px; align-items: center; gap: 10px; }
 .cc-label { font-size: 13px; font-weight: 600; color: var(--heading); font-variant-numeric: tabular-nums; }
-.cc-track { position: relative; height: 16px; background: rgba(0, 0, 0, 0.06); border-radius: 8px; overflow: hidden; }
-.cc-bar { display: block; height: 100%; width: 0; border-radius: 8px; background: var(--switch-active-bg); transition: width 0.95s cubic-bezier(0.22, 1, 0.36, 1); }
-.corr-chart.cc-in .cc-bar { width: calc(var(--mag) * 100%); }
+.cc-track { position: relative; height: 16px; background: rgba(0, 0, 0, 0.06); border-radius: 8px; }
+.cc-track::before { content: ''; position: absolute; left: 50%; top: -2px; bottom: -2px; width: 1px; background: rgba(0, 0, 0, 0.22); }
+.cc-bar { position: absolute; top: 0; height: 100%; width: 0; transition: width 0.95s cubic-bezier(0.22, 1, 0.36, 1); }
+.cc-bar.cc-pos { left: 50%; background: var(--switch-active-bg); border-radius: 0 8px 8px 0; }
+.cc-bar.cc-neg { right: 50%; background: var(--heading); border-radius: 8px 0 0 8px; }
+.corr-chart.cc-in .cc-bar { width: calc(var(--w) * 1%); }
 .cc-val { font-size: 13px; color: var(--muted); text-align: right; font-variant-numeric: tabular-nums; }
 .cc-axis { display: grid; grid-template-columns: 28px 1fr 50px; gap: 10px; margin-top: 9px; }
 .cc-scale { grid-column: 2; display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); }
