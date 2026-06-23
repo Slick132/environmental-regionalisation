@@ -98,12 +98,12 @@
       cIn: (Math.random() * N) | 0, cOut: (Math.random() * N) | 0,
       a: (Math.random() * 8) | 0, b: (Math.random() * 6) | 0, c: (Math.random() * 5) | 0,
       d: (Math.random() * 6) | 0, e: (Math.random() * 8) | 0,
-      p: 0, sp: 0.22 + 0.06 * Math.random()
+      p: 0, sp: 0.18 + 0.06 * Math.random()
     });
   }
   function update(dt) {
     spawnAcc += dt;
-    while (spawnAcc > 0.068) { spawnAcc -= 0.068; spawn(); }
+    while (spawnAcc > 0.081) { spawnAcc -= 0.081; spawn(); }
     for (var i = 0; i < parts.length; i++) parts[i].p += parts[i].sp * dt;
     parts = parts.filter(function (p) { return p.p < 1; });
   }
