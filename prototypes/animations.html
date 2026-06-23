@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Embedding + elevation animations (prototype)</title>
+  <style>
+    :root { --paper:#FBF8F4; --ink:#2B1F24; --muted:#6B5D63; --maroon:#61223B; --gold:#B79961; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:#efe7da; color:var(--ink);
+      font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,sans-serif; }
+    .wrap { max-width: 760px; margin: 0 auto; padding: 18px 16px 40px; }
+    .tag { font-size:11px; letter-spacing:.09em; text-transform:uppercase; color:var(--maroon); }
+    h1 { font-size: clamp(20px,3vw,26px); margin:4px 0 12px; color:var(--maroon); }
+    .modes { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px; }
+    .modes button { border:1px solid rgba(97,34,59,0.25); background:#fff; color:var(--maroon);
+      border-radius:999px; padding:7px 13px; font:inherit; font-size:13px; cursor:pointer; }
+    .modes button.active { background:var(--maroon); color:#fff; border-color:transparent; }
+    .card { background:#fff; border:1px solid rgba(97,34,59,0.14); border-radius:16px; padding:12px;
+      box-shadow:0 16px 40px -26px rgba(70,26,43,0.5); }
+    canvas { display:block; width:100%; height:520px; border-radius:10px; }
+    @media (max-width:640px){ canvas { height:440px; } }
+    .cap { margin:12px 4px 0; font-size:13px; line-height:1.5; color:var(--muted); }
+    .hint { margin-top:8px; font-size:12px; color:#998a80; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="tag">Prototype</div>
+    <h1>Embeddings, tied to elevation</h1>
+    <div class="modes" id="modes">
+      <button data-mode="reveal" class="active">Reconstruction reveal</button>
+      <button data-mode="relief">Relief from z2</button>
+      <button data-mode="scatter">z2 vs elevation</button>
+    </div>
+    <div class="card">
+      <canvas id="c" aria-label="Animation"></canvas>
+    </div>
+    <p class="cap" id="cap"></p>
+    <p class="hint">Prototype for review. Data: 2,530 sampled sites. Elevation was never an input to the model.</p>
+  </div>
+
+  <script>
+  (function () {
+    var cvs = document.getElementById('c'), ctx = cvs.getContext('2d');
+    var W = 0, H = 0, DPR = 1;
+    var FONT = "'Inter',system-ui,sans-serif";
+    var COL = { maroon:'#61223B', gold:'#B79961', ink:'#2B1F24', sub:'#8A7A73', recon:'#1D9E75' };
+
+    var ELEV_STOPS = [[0,[47,110,79]],[0.45,[183,160,90]],[0.78,[214,200,176]],[1,[245,242,236]]];
+    function clamp(v,a,b){ return v<a?a:(v>b?b:v); }
+    function ease(t){ t=clamp(t,0,1); return t*t*(3-2*t); }
+    function lerp(a,b,t){ return a+(b-a)*t; }
+    function ramp(st,t){ t=clamp(t,0,1); for(var i=0;i<st.length-1;i++){ if(t<=st[i+1][0]){ var a=st[i],b=st[i+1],u=(t-a[0])/((b[0]-a[0])||1); return [lerp(a[1][0],b[1][0],u),lerp(a[1][1],b[1][1],u),lerp(a[1][2],b[1][2],u)]; } } return st[st.length-1][1]; }
+    function rgb(c){ return 'rgb('+(c[0]|0)+','+(c[1]|0)+','+(c[2]|0)+')'; }
+    function shade(c,s){ return rgb([c[0]*s,c[1]*s,c[2]*s]); }
+
+    var D = null, px = null, py = null;
+    var rTrue = null, rRecon = null;             // offscreen rasters (reveal)
+    var rZ2 = null, rElev = null, lightT = -1;   // offscreen reliefs (relief)
+    var IX = { lon:0, lat:1, elev:2, z2:4, z4:6, ehat:8 };
+
+    function project() {
+      var b = D.bounds, lon0=b.lon[0], lon1=b.lon[1], lat0=b.lat[0], lat1=b.lat[1];
+      var midlat = (lat0+lat1)/2, cosl = Math.cos(midlat*Math.PI/180);
+      var spanX = (lon1-lon0)*cosl, spanY = (lat1-lat0);
+      var m = 16, availW = W-2*m, availH = H-2*m;
+      var sc = Math.min(availW/spanX, availH/spanY);
+      var offX = (W - spanX*sc)/2, offY = (H - spanY*sc)/2;
+      var s = D.sites, n = s.length;
+      px = new Float32Array(n); py = new Float32Array(n);
+      for (var i=0;i<n;i++){
+        var ux = (s[i][0]-lon0)*cosl, uy = (s[i][1]-lat0);
+        px[i] = offX + ux*sc;
+        py[i] = offY + (spanY-uy)*sc;
+      }
+    }
+
+    function norm(val, rng){ return clamp((val-rng[0])/((rng[1]-rng[0])||1), 0, 1); }
+
+    // ---- offscreen field raster (reveal): flat-fill triangles by a value index ----
+    function buildField(valIdx, rngKey) {
+      var off = document.createElement('canvas'); off.width=Math.round(W*DPR); off.height=Math.round(H*DPR);
+      var o = off.getContext('2d'); o.setTransform(DPR,0,0,DPR,0,0);
+      var s=D.sites, t=D.tris, rng=D.ranges[rngKey];
+      for (var k=0;k<t.length;k++){
+        var a=t[k][0],b=t[k][1],c=t[k][2];
+        var mv=(s[a][valIdx]+s[b][valIdx]+s[c][valIdx])/3;
+        o.beginPath(); o.moveTo(px[a],py[a]); o.lineTo(px[b],py[b]); o.lineTo(px[c],py[c]); o.closePath();
+        o.fillStyle = rgb(ramp(ELEV_STOPS, norm(mv,rng)));
+        o.fill();
+      }
+      return off;
+    }
+
+    // ---- offscreen relief raster (relief): shaded by a height index ----
+    function buildRelief(hIdx, rngKey, hScale, L, flip) {
+      var off = document.createElement('canvas'); off.width=Math.round(W*DPR); off.height=Math.round(H*DPR);
+      var o = off.getContext('2d'); o.setTransform(DPR,0,0,DPR,0,0);
+      var s=D.sites, t=D.tris, rng=D.ranges[rngKey];
+      function hAt(i){ return norm((s[i][hIdx]*(flip||1)), rng); }
+      var Ln = Math.hypot(L[0],L[1],L[2]); var lx=L[0]/Ln, ly=L[1]/Ln, lz=L[2]/Ln;
+      for (var k=0;k<t.length;k++){
+        var a=t[k][0],b=t[k][1],c=t[k][2];
+        var ha=hAt(a),hb=hAt(b),hc=hAt(c);
+        // math coords: X=px, Y=-py (up), Z=height
+        var ax=px[a],ay=-py[a],az=ha*hScale, bx=px[b],by=-py[b],bz=hb*hScale, cx=px[c],cy=-py[c],cz=hc*hScale;
+        var ux=bx-ax,uy=by-ay,uz=bz-az, vx=cx-ax,vy=cy-ay,vz=cz-az;
+        var nx=uy*vz-uz*vy, ny=uz*vx-ux*vz, nz=ux*vy-uy*vx;
+        var nl=Math.hypot(nx,ny,nz)||1; if(nz<0){nx=-nx;ny=-ny;nz=-nz;}
+        var sh = clamp((nx*lx+ny*ly+nz*lz)/nl, 0, 1);
+        sh = 0.34 + 0.66*sh;
+        var mv=(ha+hb+hc)/3;
+        o.beginPath(); o.moveTo(px[a],py[a]); o.lineTo(px[b],py[b]); o.lineTo(px[c],py[c]); o.closePath();
+        o.fillStyle = shade(ramp(ELEV_STOPS, mv), sh);
+        o.fill();
+      }
+      return off;
+    }
+
+    function rebuild() {
+      project();
+      rTrue = buildField(IX.elev, 'elev');
+      rRecon = buildField(IX.ehat, 'elev');
+      rZ2 = null; rElev = null; lightT = -1;     // relief rebuilt lazily on light step
+    }
+
+    function resize() {
+      DPR = Math.min(window.devicePixelRatio||1, 2);
+      W = cvs.clientWidth||700; H = cvs.clientHeight||520;
+      cvs.width = Math.round(W*DPR); cvs.height = Math.round(H*DPR);
+      ctx.setTransform(DPR,0,0,DPR,0,0);
+      if (D) rebuild();
+    }
+
+    // -------------------- modes --------------------
+    function drawReveal(T) {
+      var seam = (0.5 + 0.5*Math.sin(T*0.7)) * W;      // sweeps left-right
+      ctx.drawImage(rTrue, 0,0,W,H);
+      ctx.save(); ctx.beginPath(); ctx.rect(seam,0,W-seam,H); ctx.clip();
+      ctx.drawImage(rRecon, 0,0,W,H); ctx.restore();
+      // seam line + glow
+      ctx.save();
+      ctx.shadowColor='rgba(183,153,97,0.8)'; ctx.shadowBlur=14;
+      ctx.strokeStyle=COL.gold; ctx.lineWidth=2.4; ctx.beginPath(); ctx.moveTo(seam,0); ctx.lineTo(seam,H); ctx.stroke();
+      ctx.restore();
+      ctx.font='600 13px '+FONT; ctx.textBaseline='top';
+      ctx.fillStyle=COL.maroon; ctx.textAlign='left';  ctx.fillText('given to the model', 12, 12);
+      ctx.fillStyle=COL.recon;  ctx.textAlign='right'; ctx.fillText('reconstructed from z1..z5', W-12, 12);
+    }
+
+    function drawRelief(T) {
+      var ang = T*0.45;
+      var L = [Math.cos(ang)*0.7, 0.78, Math.sin(ang)*0.7];
+      var step = Math.floor(T*7);                       // re-light ~7x/sec
+      if (step !== lightT) {
+        lightT = step;
+        var hs = 0.20*H;
+        rZ2 = buildRelief(IX.z2, 'z2', hs, L, D.z2_flip);
+        rElev = buildRelief(IX.elev, 'elev', hs, L, 1);
+      }
+      var blend = 0.5 + 0.5*Math.sin(T*0.55);           // 0=z2 relief, 1=elevation relief
+      ctx.globalAlpha = 1; ctx.drawImage(rZ2,0,0,W,H);
+      ctx.globalAlpha = ease(blend); ctx.drawImage(rElev,0,0,W,H); ctx.globalAlpha=1;
+      ctx.font='600 13px '+FONT; ctx.textBaseline='top'; ctx.textAlign='left';
+      ctx.fillStyle=COL.maroon; ctx.fillText(blend<0.5?'relief built from z2 only':'real elevation', 12, 12);
+      ctx.font='12px '+FONT; ctx.fillStyle=COL.sub;
+      ctx.fillText('Spearman(z2, elevation) = 0.83', 12, 32);
+    }
+
+    // scatter state
+    var scP = null;
+    function setupScatter(){ scP = D.sites.map(function(_,i){ return { hx:px[i], hy:py[i] }; }); }
+    function axisRect(){ return { l: 64, r: W-22, t: 26, b: H-40 }; }
+    function drawScatter(T) {
+      if (!scP || scP.length!==D.sites.length) setupScatter();
+      var R = axisRect();
+      var period = 9.0, ph = (T % period);
+      var useZ4 = ph > period/2;                        // first half z2, second half z4
+      var local = useZ4 ? (ph-period/2) : ph;
+      var t = ease(clamp(local/1.6, 0, 1));             // assemble over 1.6s, then hold
+      var idx = useZ4 ? IX.z4 : IX.z2, rngKey = useZ4 ? 'z4' : 'z2';
+      var rng = D.ranges[rngKey], er = D.ranges.elev, flip = useZ4?1:D.z2_flip;
+      // axes
+      ctx.strokeStyle='rgba(120,100,90,0.35)'; ctx.lineWidth=1;
+      ctx.beginPath(); ctx.moveTo(R.l,R.t); ctx.lineTo(R.l,R.b); ctx.lineTo(R.r,R.b); ctx.stroke();
+      ctx.fillStyle=COL.sub; ctx.font='12px '+FONT;
+      ctx.save(); ctx.translate(18,(R.t+R.b)/2); ctx.rotate(-Math.PI/2); ctx.textAlign='center'; ctx.fillText('elevation',0,0); ctx.restore();
+      ctx.textAlign='center'; ctx.textBaseline='top'; ctx.fillText(useZ4?'latent z4':'latent z2 (height axis)',(R.l+R.r)/2,R.b+14);
+      var s=D.sites;
+      for (var i=0;i<s.length;i++){
+        var tx = R.l + norm(s[i][idx]*flip, rng)*(R.r-R.l);
+        var ty = R.b - norm(s[i][IX.elev], er)*(R.b-R.t);
+        var x = lerp(scP[i].hx, tx, t), y = lerp(scP[i].hy, ty, t);
+        var c = ramp(ELEV_STOPS, norm(s[i][IX.elev], er));
+        ctx.beginPath(); ctx.arc(x,y,2.4,0,7); ctx.fillStyle=rgb(c); ctx.globalAlpha=0.82; ctx.fill();
+      }
+      ctx.globalAlpha=1;
+      // regression line + rho (only when assembled)
+      if (t>0.85){
+        var rho = useZ4 ? D.spearman.z4 : D.spearman.z2;
+        if (!useZ4){
+          ctx.strokeStyle=COL.maroon; ctx.lineWidth=2; ctx.globalAlpha=clamp((t-0.85)/0.15,0,1);
+          ctx.beginPath(); ctx.moveTo(R.l, R.b-0.06*(R.b-R.t)); ctx.lineTo(R.r, R.t+0.06*(R.b-R.t)); ctx.stroke();
+          ctx.globalAlpha=1;
+        }
+        ctx.fillStyle=COL.maroon; ctx.font='600 13px '+FONT; ctx.textAlign='right'; ctx.textBaseline='top';
+        ctx.fillText('Spearman = '+(rho>=0?'+':'')+rho.toFixed(2), R.r-6, R.t+4);
+      }
+    }
+
+    var CAPS = {
+      reveal: 'A seam sweeps the map. Behind it the surface is painted from true elevation; ahead of it from elevation reconstructed from the five learned numbers. The two halves match across the seam, because the five numbers explain 87% of elevation, which the model never saw.',
+      relief: 'A shaded mountain relief built only from latent axis z2, cross-faded against the relief of real elevation. The ridges and basins coincide, so a single learned number traces the terrain.',
+      scatter: 'Every site flies from its map position into a plot of z2 against elevation, landing on a tight rising band (Spearman 0.83). The second beat re-sorts by z4, which carries almost no height signal (0.10), so the cloud stays formless.'
+    };
+
+    var mode = 'reveal', CLOCK = 0, last = null;
+    function frame(ts){
+      if (last==null) last=ts; var dt=Math.min((ts-last)/1000,0.05); last=ts; CLOCK+=dt;
+      ctx.clearRect(0,0,W,H);
+      if (D){
+        if (mode==='reveal') drawReveal(CLOCK);
+        else if (mode==='relief') drawRelief(CLOCK);
+        else drawScatter(CLOCK);
+      }
+      requestAnimationFrame(frame);
+    }
+
+    document.getElementById('modes').addEventListener('click', function(e){
+      var b = e.target.closest('button'); if(!b) return;
+      mode = b.getAttribute('data-mode'); CLOCK = 0; scP = null;
+      [].forEach.call(this.querySelectorAll('button'), function(x){ x.classList.toggle('active', x===b); });
+      document.getElementById('cap').textContent = CAPS[mode];
+    });
+
+    if (window.ResizeObserver) new ResizeObserver(resize).observe(cvs);
+    window.addEventListener('resize', resize);
+
+    fetch('../data/prototype_sites.json').then(function(r){ return r.json(); }).then(function(j){
+      D = j; resize();
+      document.getElementById('cap').textContent = CAPS.reveal;
+      requestAnimationFrame(frame);
+    }).catch(function(err){
+      document.getElementById('cap').textContent = 'Could not load data: '+err;
+    });
+  })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>3D elevation blanket (prototype)</title>
+  <style>
+    :root { --paper: #F4ECD8; --ink: #3a2f23; --maroon: #61223B; --gold: #B79961; }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; height: 100%; background: var(--paper); color: var(--ink);
+      font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, sans-serif; overflow: hidden; }
+    #app { position: fixed; inset: 0; }
+    canvas { display: block; touch-action: none; }
+    .panel { position: fixed; left: 12px; right: 12px; bottom: 12px; margin: 0 auto; max-width: 460px;
+      background: rgba(255,255,255,0.82); backdrop-filter: blur(6px);
+      border: 1px solid rgba(97,34,59,0.18); border-radius: 14px; padding: 12px 14px;
+      box-shadow: 0 10px 30px -16px rgba(70,26,43,0.5); }
+    .panel h1 { font-size: 14px; margin: 0 0 6px; color: var(--maroon); }
+    .panel p { font-size: 12px; line-height: 1.4; margin: 0 0 10px; color: #5b5043; }
+    .row { display: flex; align-items: center; gap: 10px; font-size: 12px; }
+    .row label { white-space: nowrap; color: #5b5043; }
+    input[type=range] { flex: 1; accent-color: var(--maroon); }
+    .row button { border: 1px solid rgba(97,34,59,0.25); background: #fff; color: var(--maroon);
+      border-radius: 8px; padding: 5px 10px; font: inherit; font-size: 12px; cursor: pointer; }
+    .tag { position: fixed; top: 12px; left: 12px; font-size: 11px; letter-spacing: .08em;
+      text-transform: uppercase; color: var(--maroon); background: rgba(255,255,255,0.7);
+      padding: 4px 9px; border-radius: 999px; }
+    #loading { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
+      font-size: 13px; color: #6b5d4a; }
+  </style>
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+</head>
+<body>
+  <div id="app"></div>
+  <div class="tag">Prototype &middot; elevation blanket</div>
+  <div id="loading">Building the terrain&hellip;</div>
+  <div class="panel">
+    <h1>Elevation as a 3D blanket</h1>
+    <p>Drag to orbit, pinch or scroll to zoom. The surface is the real elevation of the study area, lifted off the map. Vertical scale is exaggerated so the relief reads.</p>
+    <div class="row">
+      <label for="exag">Height</label>
+      <input id="exag" type="range" min="0.4" max="4" step="0.05" value="2.2">
+      <button id="reset" type="button">Reset view</button>
+    </div>
+  </div>
+
+  <script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+    const app = document.getElementById('app');
+    const PAPER = 0xF4ECD8;
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setClearColor(PAPER, 1);
+    app.appendChild(renderer.domElement);
+
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.Fog(PAPER, 16, 34);
+
+    const camera = new THREE.PerspectiveCamera(48, window.innerWidth / window.innerHeight, 0.1, 200);
+    const START = new THREE.Vector3(0.2, 8.5, 9.5);
+    camera.position.copy(START);
+
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.08;
+    controls.minDistance = 4;
+    controls.maxDistance = 26;
+    controls.maxPolarAngle = 1.45;          // keep above the ground plane
+    controls.target.set(0, 0.4, 0);
+
+    scene.add(new THREE.AmbientLight(0xffffff, 0.62));
+    const sun = new THREE.DirectionalLight(0xfff4e0, 1.25);
+    sun.position.set(-6, 9, 4);
+    scene.add(sun);
+    const rim = new THREE.DirectionalLight(0x9fb6c8, 0.35);
+    rim.position.set(5, 4, -6);
+    scene.add(rim);
+
+    // Plane sized to the study-area aspect (portrait); textures map onto it.
+    const PLANE_H = 10, PLANE_W = 6.5;
+    const geo = new THREE.PlaneGeometry(PLANE_W, PLANE_H, 220, 300);
+    geo.rotateX(-Math.PI / 2);
+
+    const loader = new THREE.TextureLoader();
+    let mat, mesh;
+    const exagEl = document.getElementById('exag');
+
+    function load(url) {
+      return new Promise((res) => loader.load(url, (t) => { t.colorSpace = THREE.SRGBColorSpace; res(t); }));
+    }
+
+    Promise.all([load('assets/dem_color.png'), load('assets/dem_gray.png')]).then(([color, gray]) => {
+      gray.colorSpace = THREE.NoColorSpace;
+      mat = new THREE.MeshStandardMaterial({
+        map: color,
+        displacementMap: gray,
+        displacementScale: parseFloat(exagEl.value),
+        transparent: true,
+        alphaTest: 0.45,
+        roughness: 0.92,
+        metalness: 0.0,
+        side: THREE.DoubleSide
+      });
+      mesh = new THREE.Mesh(geo, mat);
+      mesh.position.y = -0.1;
+      scene.add(mesh);
+      // a soft base so the cut-out shape reads against the page
+      document.getElementById('loading').remove();
+    });
+
+    exagEl.addEventListener('input', () => { if (mat) mat.displacementScale = parseFloat(exagEl.value); });
+    document.getElementById('reset').addEventListener('click', () => {
+      camera.position.copy(START); controls.target.set(0, 0.4, 0); controls.update();
+    });
+
+    addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    (function loop() {
+      requestAnimationFrame(loop);
+      controls.update();
+      renderer.render(scene, camera);
+    })();
+  </script>
+</body>
+</html>
