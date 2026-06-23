@@ -14,7 +14,7 @@
   L.imageOverlay('figures/study_area_overlay.png', bounds, { opacity: 1.0, interactive: false }).addTo(map);
 
   // Show the study area within the surrounding country for context.
-  function fit() { map.fitBounds(L.latLngBounds(bounds).pad(0.55)); }
+  function fit() { map.fitBounds(L.latLngBounds(bounds).pad(0.18)); }
   fit();
   setTimeout(function () { map.invalidateSize(); fit(); }, 250);
 })();
