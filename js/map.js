@@ -12,14 +12,15 @@
 
   var map = L.map(el, { center: data.center, zoom: 6, layers: [sat], scrollWheelZoom: false });
 
-  var overlay = L.imageOverlay(data.img, data.bounds, { opacity: 0.66, interactive: false, className: 'region-overlay' });
+  var overlay = L.imageOverlay(data.img, data.bounds, { opacity: 1.0, interactive: false, className: 'region-overlay' });
   overlay.addTo(map);
   map.fitBounds(data.bounds, { padding: [12, 12] });
 
   L.control.layers({ 'Satellite': sat, 'Terrain': topo }, {}, { collapsed: false }).addTo(map);
 
   var sl = document.getElementById('mapOpacity');
-  function curOp() { return sl ? parseInt(sl.value, 10) / 100 : 0.66; }
+  if (sl) { sl.value = 100; }
+  function curOp() { return sl ? parseInt(sl.value, 10) / 100 : 1.0; }
   if (sl) { sl.addEventListener('input', function () { overlay.setOpacity(curOp()); }); }
 
   var legEl = document.getElementById('mapLegend');

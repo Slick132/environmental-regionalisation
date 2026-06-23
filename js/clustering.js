@@ -66,6 +66,83 @@
     return { tick: tick, setActive: function (v) { active = v; } };
   }
 
+  // Encoder head: a 2-layer feed-forward network pointing down, an arrow to a
+  // 5-value output vector whose numbers drift continuously to random values.
+  function makeEncoder(canvasId) {
+    var c = document.getElementById(canvasId);
+    if (!c) { return null; }
+    var ctx = c.getContext('2d'); var W, H;
+    function rs() { var d = Math.min(window.devicePixelRatio || 1, 2); W = c.clientWidth || 460; H = c.clientHeight || 230; c.width = Math.round(W * d); c.height = Math.round(H * d); ctx.setTransform(d, 0, 0, d, 0, 0); }
+    rs(); if (window.ResizeObserver) { new ResizeObserver(rs).observe(c); } window.addEventListener('resize', rs);
+
+    var LN = [6, 4, 5];            // input, hidden, output (the 5 numbers)
+    var LY = [0.12, 0.34, 0.56];   // layer y, fraction of height
+    var ps = [], acc = 0, active = false;
+    var val = [0.5, -0.01, 0.98, 1.23, 4.2];
+    var tgt = val.slice(), spd = [0, 0, 0, 0, 0];
+    function retarget(i) { tgt[i] = -1.6 + 6.0 * Math.random(); spd[i] = 0.8 + 1.3 * Math.random(); }
+
+    function nodeX(li, i) { var n = LN[li], span = Math.min(W * 0.66, 300); return W / 2 + (i - (n - 1) / 2) * (span / Math.max(n - 1, 1)); }
+    function nodeY(li) { return LY[li] * H; }
+    function spawn() { ps.push({ a: (Math.random() * LN[0]) | 0, b: (Math.random() * LN[1]) | 0, c: (Math.random() * LN[2]) | 0, p: 0, sp: 0.30 + 0.12 * Math.random() }); }
+
+    function tick(dt) {
+      if (!active) { return; }
+      for (var i = 0; i < 5; i++) {
+        val[i] += (tgt[i] - val[i]) * Math.min(1, spd[i] * dt);
+        if (Math.abs(tgt[i] - val[i]) < 0.04) { retarget(i); }
+      }
+      acc += dt;
+      while (acc > 0.085) { acc -= 0.085; spawn(); }
+      for (var j = 0; j < ps.length; j++) ps[j].p += ps[j].sp * dt;
+      ps = ps.filter(function (o) { return o.p < 1; });
+      draw();
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, W, H);
+      ctx.strokeStyle = CT.line; ctx.lineWidth = 1;
+      for (var li = 0; li < 2; li++) {
+        for (var i = 0; i < LN[li]; i++) {
+          var x1 = nodeX(li, i), y1 = nodeY(li);
+          for (var k = 0; k < LN[li + 1]; k++) { ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(nodeX(li + 1, k), nodeY(li + 1)); ctx.stroke(); }
+        }
+      }
+      var ax = W / 2, ay0 = nodeY(2) + 16, ay1 = H * 0.72;
+      ctx.strokeStyle = CT.inkSoft; ctx.lineWidth = 2; ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.moveTo(ax, ay0); ctx.lineTo(ax, ay1 - 9); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(ax, ay1); ctx.lineTo(ax - 6, ay1 - 10); ctx.lineTo(ax + 6, ay1 - 10); ctx.closePath(); ctx.fillStyle = CT.inkSoft; ctx.fill();
+      for (var m = 0; m < ps.length; m++) {
+        var o = ps[m], seg = o.p < 0.5 ? 0 : 1, u = ease((o.p - seg * 0.5) / 0.5);
+        var fromI = seg === 0 ? o.a : o.b, toI = seg === 0 ? o.b : o.c;
+        var x0 = nodeX(seg, fromI), y0 = nodeY(seg), xe = nodeX(seg + 1, toI), ye = nodeY(seg + 1);
+        var x = x0 + (xe - x0) * u, y = y0 + (ye - y0) * u;
+        ctx.beginPath(); ctx.arc(x, y, 2.4, 0, 7); ctx.fillStyle = mix(CT.code, CT.inkSoft, o.p); ctx.globalAlpha = 0.9 * Math.sin(o.p * Math.PI); ctx.fill(); ctx.globalAlpha = 1;
+      }
+      for (var li2 = 0; li2 < 3; li2++) {
+        for (var i2 = 0; i2 < LN[li2]; i2++) {
+          ctx.beginPath(); ctx.arc(nodeX(li2, i2), nodeY(li2), 4.2, 0, 7);
+          ctx.fillStyle = CT.code; ctx.fill(); ctx.strokeStyle = CT.codeStroke; ctx.lineWidth = 1; ctx.stroke();
+        }
+      }
+      var nums = val.map(function (v) { return (v >= 0 ? ' ' : '') + v.toFixed(2); }).join('  ');
+      var lb = '[ ', rb = ' ]';
+      var fs = Math.max(12, Math.min(18, W / 22));
+      ctx.font = '600 ' + fs + 'px ui-monospace, "SF Mono", Menlo, Consolas, monospace';
+      var total = ctx.measureText(lb + nums + rb).width, maxW = W * 0.92;
+      if (total > maxW) { fs *= maxW / total; ctx.font = '600 ' + fs + 'px ui-monospace, "SF Mono", Menlo, Consolas, monospace'; }
+      ctx.textBaseline = 'middle'; ctx.textAlign = 'left';
+      var wL = ctx.measureText(lb).width, wN = ctx.measureText(nums).width, wR = ctx.measureText(rb).width;
+      var sx = W / 2 - (wL + wN + wR) / 2, vy = H * 0.88;
+      ctx.fillStyle = CT.codeStroke; ctx.fillText(lb, sx, vy);
+      ctx.fillStyle = CT.ink; ctx.fillText(nums, sx + wL, vy);
+      ctx.fillStyle = CT.codeStroke; ctx.fillText(rb, sx + wL + wN, vy);
+      ctx.textAlign = 'center';
+    }
+
+    return { tick: tick, setActive: function (v) { active = v; } };
+  }
+
   function KM(canvasId, cfg) {
     var c = document.getElementById(canvasId);
     if (!c) { return null; }
@@ -202,7 +279,7 @@
     return { tick: tick, setActive: function (v) { active = v; } };
   }
 
-  var bridge = makeBridge('bridgeCanvas', { colorMode: 'code' });
+  var bridge = makeEncoder('bridgeCanvas');
   var bridge2 = makeBridge('bridgeCanvas2', { colorMode: 'cluster' });
   var clusterKM = KM('clusterCanvas', { K: 8, nb: 8, count: 10, spread: 0.05, initDur: 0.35, assignDur: 0.55, moveDur: 0.7, holdDur: 0.6, ptR: 3.4, centR: 8, lines: false, grid: false, maxIter: 9, contourCentres: 3 });
 
