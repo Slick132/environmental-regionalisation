@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
-  <link rel="stylesheet" href="css/styles.css?v=9">
+  <link rel="stylesheet" href="css/styles.css?v=10">
 </head>
 <body>
   <div class="scratchpad" aria-hidden="true">
@@ -67,25 +67,25 @@
         </svg>
         <p class="eyebrow">Masters thesis</p>
         <h1>A feature-learning approach to environmental regionalisation</h1>
-        <p class="lede">A convolutional autoencoder learns five numbers that summarise a full year of daily climate for each site. Those five numbers are enough to recover the forestry growing regions of South Africa, with no map and no coordinates given to the model.</p>
+        <p class="lede">A convolutional autoencoder learns five numbers that summarise the full daily climate record from 2006 to 2024 for each site. Those five numbers are enough to recover the climate regions of South Africa, with no map and no coordinates given to the model.</p>
       </div>
     </section>
 
     <section class="data-section" id="data">
       <div class="wrap">
         <p class="eyebrow">The data</p>
-        <h2>Daily climate across the forestry study area</h2>
-        <p class="section-lede">The study area is a 5 km grid of 14,191 sites across the forestry regions of eastern South Africa, in Limpopo, Mpumalanga and KwaZulu-Natal. The map below highlights those sites over satellite imagery. At every site the model reads one full year of daily weather across six variables.</p>
+        <h2>Daily climate across the study area</h2>
+        <p class="section-lede">The study area is a 5 km grid of 14,191 sites across eastern South Africa, in Limpopo, Mpumalanga and KwaZulu-Natal. The map below highlights those sites over satellite imagery. At every site the model reads the full daily weather record from 2006 to 2024 across six variables.</p>
         <figure class="data-fig">
           <div id="studyMap" role="img" aria-label="Satellite map of eastern South Africa with the study area sampling grid highlighted as hexagons"></div>
-          <figcaption>The 14,191 sampled 5 km hexagons highlighted over satellite imagery, across the forestry regions of eastern South Africa. Zoom in to see the individual hexagons.</figcaption>
+          <figcaption>The 14,191 sampled 5 km hexagons highlighted over satellite imagery, across eastern South Africa. Zoom in to see the individual hexagons.</figcaption>
         </figure>
-        <h3 class="sub-h">One year of daily weather at a site</h3>
-        <p class="section-lede">Each site carries a daily time series for 2006 of the six variables the model reads. The example below is a site on the Mpumalanga escarpment, showing the seasonal cycle of warm wet summers and cool dry winters.</p>
+        <h3 class="sub-h">A one-year snapshot at a site</h3>
+        <p class="section-lede">Each site carries a daily time series of the six variables from 2006 to 2024, the full record the model reads. The example below shows a single year, 2006, at a site on the Mpumalanga escarpment, with the seasonal cycle of warm wet summers and cool dry winters.</p>
         <figure class="data-fig">
-          <canvas id="tsCanvas" aria-label="One year of daily maximum and minimum temperature, maximum and minimum relative humidity, precipitation and wind at one site, drawn as six stacked panels"></canvas>
-          <noscript><img src="figures/data_timeseries.png" alt="One year of daily maximum and minimum temperature, maximum and minimum relative humidity, precipitation and wind at one site"></noscript>
-          <figcaption>Daily maximum and minimum temperature, maximum and minimum relative humidity, precipitation and wind for 2006 at one site on the Mpumalanga escarpment (25.5 S, 30.6 E). These six daily series are the only input the model receives.</figcaption>
+          <canvas id="tsCanvas" aria-label="One year (2006) of daily maximum and minimum temperature, maximum and minimum relative humidity, precipitation and wind at one site, drawn as six stacked panels"></canvas>
+          <noscript><img src="figures/data_timeseries.png" alt="One year (2006) of daily maximum and minimum temperature, maximum and minimum relative humidity, precipitation and wind at one site"></noscript>
+          <figcaption>Daily maximum and minimum temperature, maximum and minimum relative humidity, precipitation and wind for 2006 at one site on the Mpumalanga escarpment (25.5 S, 30.6 E). These six daily series, spanning 2006 to 2024, are the only input the model receives.</figcaption>
         </figure>
       </div>
     </section>
@@ -94,7 +94,7 @@
       <div class="wrap">
         <p class="eyebrow">The standard approach</p>
         <h2>The K&ouml;ppen-Geiger climate classification</h2>
-        <p class="section-lede">K&ouml;ppen-Geiger is the most widely used climate classification. It places every location into one class using fixed rules on just two variables, long-term temperature and precipitation, following the scheme of <a href="references.html#ref-peel" class="cite">Peel et al. (2007)</a>. The satellite map below shows those classes across the forestry study area in eastern South Africa, with the meaning of each class listed beneath it.</p>
+        <p class="section-lede">K&ouml;ppen-Geiger is the most widely used climate classification. It places every location into one class using fixed rules on just two variables, long-term temperature and precipitation, following the scheme of <a href="references.html#ref-peel" class="cite">Peel et al. (2007)</a>. The satellite map below shows those classes across the study area in eastern South Africa, with the meaning of each class listed beneath it.</p>
         <figure class="map-panel">
           <div id="koppenMap" role="img" aria-label="Interactive satellite map of eastern South Africa coloured by Koppen-Geiger climate class"></div>
           <div class="map-tools">
@@ -111,7 +111,7 @@
           <li><strong>Only two variables.</strong> The rules use temperature and precipitation alone, ignoring humidity, wind and other drivers that shape where trees grow well.</li>
           <li><strong>Fixed, static rules.</strong> The class thresholds are defined in advance and do not adapt to the data, so the same global cut-offs are applied everywhere.</li>
           <li><strong>Hard boundaries.</strong> Each site is forced into a single class, so transitional zones are merged into a neighbour and the gradual change across the landscape is lost.</li>
-          <li><strong>Coarse classes.</strong> Large areas with different climates can share one class, hiding variation that matters on the ground for forestry.</li>
+          <li><strong>Coarse classes.</strong> Large areas with different climates can share one class, hiding variation that matters on the ground.</li>
         </ul>
         <p class="section-lede">This site shows an alternative that learns its regions directly from daily weather across six variables, with no fixed rules.</p>
       </div>
@@ -122,7 +122,7 @@
         <div class="method-divider" role="separator" aria-label="The feature-learning method begins here">
           <span>The feature-learning method begins here</span>
         </div>
-        <p class="method-intro">From this point the site leaves the rule-based classification behind and learns the regions directly from the data. A convolutional autoencoder reads a full year of daily weather across six variables and compresses each site into a five-number code, with no fixed rules and no labels. The animation below shows that compression and the reconstruction the model learns.</p>
+        <p class="method-intro">From this point the site leaves the rule-based classification behind and learns the regions directly from the data. A convolutional autoencoder reads the full daily weather record from 2006 to 2024 across six variables and compresses each site into a five-number code, with no fixed rules and no labels. The animation below shows that compression and the reconstruction the model learns.</p>
         <figure class="anim-card">
           <p class="sr-only">Animation of a trained feed-forward autoencoder. Six daily climate channels flow in from the left into a layered neural network. Particles travel along the connections through a five-neuron bottleneck code, and a reconstruction flows out on the right that mirrors the input.</p>
           <div class="anim-stage">
@@ -130,7 +130,7 @@
             <button id="aeToggle" class="anim-toggle" type="button" aria-label="Pause animation"></button>
           </div>
           <div class="legend" id="aeLegend"></div>
-          <figcaption class="anim-caption">Six daily climate channels for each site, maximum and minimum temperature, maximum and minimum relative humidity, precipitation and wind, flow into a trained autoencoder. The network compresses a full year into a five-number code, then rebuilds the original series from those five numbers. The reconstruction on the right mirrors the input on the left, which is the evidence that five numbers capture the climate of a site.</figcaption>
+          <figcaption class="anim-caption">Six daily climate channels for each site, maximum and minimum temperature, maximum and minimum relative humidity, precipitation and wind, flow into a trained autoencoder. The network compresses the full record into a five-number code, then rebuilds the original series from those five numbers. The reconstruction on the right mirrors the input on the left, which is the evidence that five numbers capture the climate of a site.</figcaption>
         </figure>
       </div>
     </section>
@@ -146,7 +146,7 @@
       <div class="wrap">
         <p class="eyebrow">Step two</p>
         <h2>Clustering the learned features</h2>
-        <p class="section-lede">Each site is now a point in five dimensions, given by its five learned numbers. The k-means algorithm groups the points into eight regions by repeatedly assigning each point to the nearest cluster centre and moving every centre to the mean of the points assigned to it. The view below is a two-dimensional projection of the 5-D embedding.</p>
+        <p class="section-lede">Each site is now a point in five dimensions, given by its five learned numbers. The k-means algorithm groups the points into eight regions by repeatedly assigning each point to the nearest cluster centre and moving every centre to the mean of the points assigned to it. The embedding is continuous, with no natural gaps that fix the number of groups, so the count of regions is a choice. Any count still produces spatially coherent maps, and a larger one simply refines them into finer regions. Eight was chosen to match the eight K&ouml;ppen-Geiger classes, so the two regionalisations can be compared like for like. The view below is a two-dimensional projection of the 5-D embedding.</p>
         <div class="cluster-grid single">
           <figure class="panel">
             <canvas id="clusterCanvas" aria-label="Animation of k-means forming eight regions in a two-dimensional view of the five-dimensional embedding"></canvas>
@@ -159,7 +159,7 @@
     <section class="profile-section" id="profiling">
       <div class="wrap">
         <p class="eyebrow">Step three</p>
-        <h2>What each region is like</h2>
+        <h2>Region profiles</h2>
         <p class="section-lede">Each region carries a distinct climate. The bar charts give the per-region means of the four headline variables. The gradient maps show how each climate domain varies continuously across the study area, with the eight region boundaries overlaid, so the learned boundaries can be read directly against the underlying climate.</p>
 
         <figure class="fig-panel wide">
@@ -201,7 +201,7 @@
       <div class="wrap">
         <p class="eyebrow">Explore</p>
         <h2>Eight regions on the map</h2>
-        <p class="section-lede">No map, coordinates or boundaries were given to the model, yet the eight regions form coherent, contiguous bands across the forestry study area of eastern South Africa. Every site is drawn at its real latitude and longitude on the satellite map below. Colour the map by a climate variable to see how the regions differ.</p>
+        <p class="section-lede">No map, coordinates or boundaries were given to the model, yet the eight regions form coherent, contiguous bands across eastern South Africa. Every site is drawn at its real latitude and longitude on the satellite map below. Colour the map by a climate variable to see how the regions differ.</p>
         <figure class="map-panel">
           <div id="regionMap" role="img" aria-label="Interactive satellite map of eastern South Africa with the eight learned regions overlaid at the real location of every site"></div>
           <div class="map-tools">
@@ -288,6 +288,20 @@
         <p class="eyebrow">Case study</p>
         <h2>Forestry yield across the learned regions</h2>
         <p class="section-lede">Twenty-seven <em>Eucalyptus</em> trials (29,273 age-four trees), with data from industry partners Sappi, Mondi and Merensky, were matched to the learned regions. The variance in individual-tree log volume was partitioned by two mixed models, separating the genotype-by-region interaction from the genotype-by-site interaction. A large interaction means a genotype's ranking depends on where it is planted, which is the statistical basis for matching genotypes to sites.</p>
+
+        <div class="model-eqns">
+          <div class="eqn-row">
+            <div class="model-eqn">
+              <p class="eqn-cap">Genotype &times; region</p>
+              <p class="eqn"><em>y</em><sub><em>ijk</em></sub> = &mu; + <em>r</em><sub><em>i</em></sub> + <em>g</em><sub><em>j</em></sub> + (<em>rg</em>)<sub><em>ij</em></sub> + &epsilon;<sub><em>ijk</em></sub></p>
+            </div>
+            <div class="model-eqn">
+              <p class="eqn-cap">Genotype &times; site</p>
+              <p class="eqn"><em>y</em><sub><em>ijk</em></sub> = &mu; + <em>s</em><sub><em>i</em></sub> + <em>g</em><sub><em>j</em></sub> + (<em>sg</em>)<sub><em>ij</em></sub> + &epsilon;<sub><em>ijk</em></sub></p>
+            </div>
+          </div>
+          <p class="eqn-where"><em>y</em><sub><em>ijk</em></sub> is the natural log volume of tree <em>k</em> of genotype <em>j</em> in region or site <em>i</em>, and &mu; is the overall mean. The region or site effect (<em>r</em><sub><em>i</em></sub> or <em>s</em><sub><em>i</em></sub>), the genotype effect <em>g</em><sub><em>j</em></sub>, the genotype-by-environment interaction ((<em>rg</em>)<sub><em>ij</em></sub> or (<em>sg</em>)<sub><em>ij</em></sub>) and the residual &epsilon;<sub><em>ijk</em></sub> are independent random effects, each with its own variance &sigma;&sup2;. Both models are fit per species by REML, and every term in the tables below is reported as a share of that model's total variance.</p>
+        </div>
 
         <div class="gxe-tables">
           <div>
