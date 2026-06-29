@@ -107,12 +107,11 @@
         </figure>
         <h3 class="sub-h">Where it falls short</h3>
         <ul class="limit-list">
-          <li><strong>Only two variables.</strong> The rules use temperature and precipitation alone, ignoring humidity, wind and other drivers that shape where trees grow well.</li>
+          <li><strong>Only two variables.</strong> The rules use temperature and precipitation alone, ignoring humidity, wind and other variables that drive environmental differences.</li>
           <li><strong>Fixed, static rules.</strong> The class thresholds are defined in advance and do not adapt to the data, so the same global cut-offs are applied everywhere.</li>
           <li><strong>Hard boundaries.</strong> Each site is forced into a single class, so transitional zones are merged into a neighbour and the gradual change across the landscape is lost.</li>
           <li><strong>Coarse classes.</strong> Large areas with different climates can share one class, hiding variation that matters on the ground.</li>
         </ul>
-        <p class="section-lede">This site shows an alternative that learns its regions directly from daily weather across six variables, with no fixed rules.</p>
       </div>
     </section>
 
@@ -145,11 +144,11 @@
       <div class="wrap">
         <p class="eyebrow">Step two</p>
         <h2>Clustering the learned features</h2>
-        <p class="section-lede">Each site is now a point in five dimensions, given by its five learned numbers. The k-means algorithm groups the points into eight regions by repeatedly assigning each point to the nearest cluster centre and moving every centre to the mean of the points assigned to it. The embedding is continuous, with no natural gaps that fix the number of groups, so the count of regions is a choice. Any count still produces spatially coherent maps, and a larger one simply refines them into finer regions. Eight was chosen to match the eight K&ouml;ppen-Geiger classes, so the two regionalisations can be compared like for like. The view below is a two-dimensional projection of the 5-D embedding.</p>
+        <p class="section-lede">Each site is now a point in five dimensions, given by its five learned numbers. The k-means algorithm groups the points into eight regions by repeatedly assigning each point to the nearest cluster centre and moving every centre to the mean of the points assigned to it. The embedding is continuous, with no natural gaps that fix the number of groups, so the count of regions is a choice. Any count still produces spatially coherent maps, and a larger one simply refines them into finer regions. Eight was chosen to match the eight K&ouml;ppen-Geiger classes, so the two regionalisations can be compared like for like. The animation below shows k-means in two dimensions as an illustration of the algorithm, which is applied to the five learned numbers.</p>
         <div class="cluster-grid single">
           <figure class="panel">
-            <canvas id="clusterCanvas" aria-label="Animation of k-means forming eight regions in a two-dimensional view of the five-dimensional embedding"></canvas>
-            <figcaption>Eight regions forming in a two-dimensional view of the 5-D embedding. Each dot is a site, each cross is a cluster centre.</figcaption>
+            <canvas id="clusterCanvas" aria-label="Animation of k-means forming eight regions, shown in two dimensions as an illustration of the algorithm applied to the five learned numbers"></canvas>
+            <figcaption>Eight regions forming under k-means, shown in two dimensions to illustrate the algorithm, which is applied to the five learned numbers. Each dot is a site, each cross is a cluster centre.</figcaption>
           </figure>
         </div>
       </div>
@@ -192,7 +191,6 @@
     <section class="bridge-section" id="to-results">
       <div class="wrap bridge-wrap">
         <canvas id="bridgeCanvas2" aria-hidden="true"></canvas>
-        <p class="bridge-label">Every site keeps the region it was assigned, so the eight regions can be drawn back at the location of each site.</p>
       </div>
     </section>
 
@@ -287,6 +285,7 @@
         <p class="eyebrow">Case study</p>
         <h2>Forestry yield across the learned regions</h2>
         <p class="section-lede">Twenty-seven <em>Eucalyptus</em> trials (29,273 age-four trees), with data from industry partners Sappi, Mondi and Merensky, were matched to the learned regions. The variance in individual-tree log volume was partitioned by two mixed models, separating the genotype-by-region interaction from the genotype-by-site interaction. A large interaction means a genotype's ranking depends on where it is planted, which is the statistical basis for matching genotypes to sites.</p>
+        <p class="section-lede">The two models test the same idea at two scales. A region is one of the learned climate clusters, so the genotype-by-region model asks whether a genotype's ranking changes across the broad, macro-climate regions. A site is a single trial location, and several sites can sit inside one region, so the genotype-by-site model asks whether ranking changes at the finer, local scale from one site to the next.</p>
 
         <div class="model-eqns">
           <div class="eqn-row">
